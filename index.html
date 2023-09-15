@@ -49,7 +49,12 @@
         }
 
         function appendSpeed(location) {
-            rawSpeedo.innerText = `${location.coords.speed}, type: ${typeof location.coords.speed}`;
+            rawSpeedo.innerText = '';
+            Object.keys(location.coords.speed).forEach(key => {
+                rawSpeedo.innerText = `${key}: ${location.coords.speed[key]}`;
+                console.log(key, location.coords.speed[key]);
+            });
+
             var newSpeed = `${location.coords.speed == undefined ? '00' : Number((Number(location.coords.speed) * 3.6)).toFixed(2)} km/h`;
             speedo.innerText = newSpeed;
         }
