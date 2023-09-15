@@ -47,7 +47,7 @@
 
         function appendSpeed(location) {
             console.log(location);
-            var newSpeed = `${location.speed} m/s`;
+            var newSpeed = `${location.coords.speed ?? '0'} m/s`;
             speedo.innerText = newSpeed;
         }
     </script>
