@@ -51,7 +51,7 @@
         function appendSpeed(location) {
             rawSpeedo.innerText = '';
 
-            for (const property in object) {
+            for (const property in location.coords) {
                 rawSpeedo.innerText = `${property}: ${location.coords[property]}, type: ${typeof location.coords[property]}`;
             }
 
