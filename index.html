@@ -20,5 +20,35 @@
   </head>
   <body>
     <h1>Do you have any idea how fast you are going?!</h1>
+
+    <button id="getSpeedBtn">Get My Speed!</button>
+    <span>
+        <h2>Speed: </h2>
+        <h2 id="speed"></h2>
+    </span>
+
+    <script>
+        var speedo = document.querySelector("#speed");
+        var get_speedo_btn = document.querySelector("#getSpeedBtn");
+
+        var watchId;
+
+        if ('geolocation' in navigator) {
+            get_speedo_btn.addEventListener('click', () => {
+                navigator.geolocation.getCurrentPosition((location) => {
+                    appendSpeed(location);
+                });
+
+                watchId = navigator.geolocation.watchPosition(appendSpeed);
+            });
+        } else {
+            speedo.innerText = 'Geolocation API is not supported.';
+        }
+
+        function appendSpeed(location) {
+            var newSpeed = `${location.speed} m/s`;
+            speedo.innerText = newSpeed;
+        }
+    </script>
   </body>
 </html>
