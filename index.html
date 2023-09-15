@@ -46,7 +46,7 @@
         }
 
         function appendSpeed(location) {
-            var newSpeed = `${location.coords.speed == undefined ? '00' : (Number(location.coords.speed) * 3.6).toFixed(2)} km/h`;
+            var newSpeed = `${location.coords.speed == undefined ? '00' : Number((Number(location.coords.speed) * 3.6)).toFixed(2)} km/h`;
             speedo.innerText = newSpeed;
         }
     </script>
