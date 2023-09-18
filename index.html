@@ -18,194 +18,137 @@
       }
     </script>
     <style>
+        /* Remove all margins and paddings & Remove blue highlight on mobile */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+        
+        /* Set font-size to 62.5% so 0.1rem = 1 px & change the default font-family & color*/
+        html {
+            font-size: 62.5%;
+            scroll-behavior: smooth;
+            background-color: #263238;
+            color: #F8F8FF;
+            font-family: "WorkSans", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        
+        /* Stretch to fill the entire page */
+        html, body {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Display flex */
         body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #263238;
-}
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            line-height: 1.4;
+        }
+        
+        /* Remove all link styling */
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Remove style from lists */
+        ul, ol {
+            list-style: none;
+        }
+        
+        /* Utility Classes */
+        
+        /* Make anything unselectable */
+        .unselectable {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
+        }
 
-.button-container {
-  margin: 0 auto;
-  text-align: center;
-}
+        header {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+        }
 
-.button-container button {
-  padding: 12px 40px;
-  background-color: #ffffff;
-  border: 0;
-  box-shadow: none;
-  margin: 0 20px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-}
-.button-container button:first-child {
-  background-color: #2646fe;
-  color: #ffffff;
-}
-.button-container button:first-child:hover {
-  background-color: #304ffe;
-}
-.button-container button:last-child {
-  border: 1px solid #ffffff;
-  color: #ffffff;
-  background-color: transparent;
-}
+        header h1 {
+            font-size: 4.2rem;
+        }
 
-.error {
-  position: absolute;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-}
+        main  {
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+        }
+
+        main #speed {
+            font-size: 3.69rem;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 1.69rem;
+        }
     </style>
   </head>
   <body>
-    <main x-data='timer()' x-init='init()'>
-        <div>
-          <canvas id="canvas" width="300" height="300"></canvas>
-        </div>
-        <div class="button-container">
-          <button x-text='interval ? "Pause" : "Start"' @click='interval ? pause() : start()'>Start</button>
-        <button @click='stop()'>Reset</button>
-        </div>
-        <p class="error" x-show="!!error" x-html="error"></p>
-      </main>
-    <!-- <h1>Do you have any idea how fast you are going?!</h1>
-
-    <button id="getSpeedBtn">Get My Speed!</button>
-    <span>
-        <h2>Raw Data: </h2>
-        <h2 id="raw"></h2>
-        <h2>Speed: </h2>
+    <header>
+        <h1>VanividsBillisterne</h1>
+    </header>
+    <main>
         <h2 id="speed"></h2>
-    </span> -->
-
+    </main>
+    <footer>
+        <h2>&copy; 2023 - 2023 <a href="/" target="_self">Marcus Mortensen Jensen</a>, All Rights Reserved.</h2>
+    </footer>
     <script>
-        const canvasEl = document.getElementById("canvas");
-const canvasCtx = canvasEl.getContext('2d');
-
-const zeroPad = (num, places) => String(num).padStart(places, '0');
-
-function formatTime({ minutes, seconds }) {
-  return `${zeroPad(minutes, 2)} : ${zeroPad(seconds, 2)}`;
-}
-
-function calculateTime({ minutes, seconds }) {
-  if (minutes === 0 && seconds === 0) {
-    return {
-      minutes: 0,
-      seconds: 0 };
-
-  } else if (seconds === 0) {
-    return {
-      minutes: minutes - 1,
-      seconds: 59 };
-
-  } else {
-    return {
-      minutes: minutes,
-      seconds: seconds - 1 };
-
-  }
-}
-
-function writeToCanvas(text) {
-  canvasCtx.font = '52px serif';
-  canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-  canvasCtx.textAlign = 'center';
-  canvasCtx.fillStyle = "#59FFA0";
-  canvasCtx.fillText(text, canvas.width / 2, canvas.height / 2);
-}
-
-async function createVideo() {
-  const video = document.createElement('video');
-  video.muted = true;
-  video.srcObject = canvas.captureStream();
-  video.play();
-  video.addEventListener('loadedmetadata', () => {
-    video.requestPictureInPicture();
-  });
-}
-
-function timer() {
-  return {
-    interval: null,
-    error: null,
-    time: {
-      minutes: 25,
-      seconds: 0 },
-
-    init() {
-      const text = formatTime(this.time);
-      return () => {
-        writeToCanvas(text);
-        try {
-          createVideo();
-        } catch (err) {
-          this.err = err.message;
+        var speedo = document.querySelector("#speed");
+        var geoWatch;
+        
+        function appendSpeed(position) {
+            var newSpeed = `${position.coords.speed == undefined ? '0' : Number((position.coords.speed * 3.6)).toFixed(2)} km/h`;
+            speedo.innerText = newSpeed;
         }
-      };
-    },
-    start() {
-      this.interval = setInterval(() => {
-        const time = calculateTime(this.time);
-        this.time = time;
-        if (time.minutes === 0 && time.seconds === 0) {
-          this.stop();
+
+        function positionError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    console.error("Permission denied, we do not have access to the location API");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    console.error("The position is unavailable");
+                    break;
+                case error.TIMEOUT:
+                    console.error("The request timed out");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    console.error("An unknown error occured");
+                    break;
+            }
         }
-        const text = formatTime(time);
-        writeToCanvas(text);
-      }, 1000);
-    },
-    stop() {
-      clearInterval(this.interval);
-      this.interval = null;
-      this.time = {
-        minutes: 25,
-        seconds: 0 };
 
-      const text = formatTime(this.time);
-      writeToCanvas(text);
-    },
-    pause() {
-      clearInterval(this.interval);
-      this.interval = null;
-    } };
-
-}
-        // var rawSpeedo = document.querySelector("#raw");
-        // var speedo = document.querySelector("#speed");
-        // var get_speedo_btn = document.querySelector("#getSpeedBtn");
-
-        // var watchId;
-
-        // if ('geolocation' in navigator) {
-        //     get_speedo_btn.addEventListener('click', () => {
-        //         navigator.geolocation.getCurrentPosition((location) => {
-        //             appendSpeed(location);
-        //         });
-
-        //         watchId = navigator.geolocation.watchPosition(appendSpeed);
-        //     });
-        // } else {
-        //     speedo.innerText = 'Geolocation API is not supported.';
-        // }
-
-        // function appendSpeed(location) {
-        //     rawSpeedo.innerText = '';
-
-        //     for (const property in location.coords) {
-        //         rawSpeedo.innerText = `${property}: ${location.coords[property]}, type: ${typeof location.coords[property]}`;
-        //     }
-
-        //     var newSpeed = `${location.coords.speed == undefined ? '00' : Number((location.coords.speed * 3.6)).toFixed(2)} km/h`;
-        //     speedo.innerText = newSpeed;
-        // }
+        window.addEventListener("load", () => {
+            if ('geolocation' in navigator && 'watchPosition' in navigator.geolocation) {
+                geoWatch = navigator.geolocation.watchPosition(appendSpeed, positionError, {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                });
+            } else {
+                speedo.innerText = 'Geolocation API is not supported.';
+            }
+        });
     </script>
   </body>
 </html>
