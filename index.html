@@ -122,6 +122,8 @@
         var speedo = document.querySelector("#speed");
         var error = document.querySelector("#error");
         var geoWatch;
+
+
         
         window.addEventListener("load", () => {
             if ('geolocation' in navigator && 'watchPosition' in navigator.geolocation) {
@@ -130,20 +132,8 @@
                     timeout: 15000,
                     maximumAge: 0
                 });
-
-                fetchPermissionsRequired();
-                setTimeout(() => {
-                    persistentNotification();
-                }, 15 * 1000);
             } else {
                 speedo.innerText = 'Geolocation API is not supported.';
-            }
-
-            // we can move only if we are not in a browser's tab
-            isBrowser = matchMedia("(display-mode: browser)").matches;
-            if (!isBrowser) {
-                window.moveTo(16, 16);
-                window.resizeTo(800, 600);
             }
         });
 
@@ -151,6 +141,7 @@
             var newSpeed = `${position.coords.speed == undefined ? '0' : (position.coords.speed * 3.6).toFixed(0)} km/h`;
             speedo.innerText = newSpeed;
             error.innerText = "";
+            sendNotification(newSpeed);
         }
 
         function positionError(error) {
@@ -170,7 +161,9 @@
             }
         }
 
-        function persistentNotification() {
+        function sendNotification(body) {
+            fetchLocalNotificationPermission();
+
             if (!('Notification' in window) || !('ServiceWorkerRegistration' in window)) {
                 alert('Persistent Notification API not supported!');
                 return;
@@ -182,10 +175,10 @@
                         const title = 'VanvidsBillisterne';
 
                         reg.showNotification(title, {
-                            body: "Test",
+                            body: body,
                             icon: "images/icons/icon-192x192.png",
                             badge: "images/icons/icon-96x96.png"
-                        })
+                        });
                     }
                 }).catch((err) => {
                     alert('Service Worker registration error: ' + err)
@@ -194,15 +187,7 @@
                 alert('Notification API error: ' + err);
             }
         }
-
-        function fetchPermissionsRequired() {
-            fetchLocalNotificationPermission();
-        }
-
-        function fetchLocationPermission() {
-            
-        }
-
+        
         function fetchLocalNotificationPermission() {
             if (!('Notification' in window)) {
                 alert('Notification API not supported!');
