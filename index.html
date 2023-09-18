@@ -124,7 +124,7 @@
         var geoWatch;
         
         function appendSpeed(position) {
-            var newSpeed = `${position.coords.speed == undefined ? '0' : Number((position.coords.speed * 3.6)).toFixed(2)} km/h`;
+            var newSpeed = `${position.coords.speed == undefined ? '0' : (position.coords.speed * 3.6).toFixed(0)} km/h`;
             speedo.innerText = newSpeed;
             error.innerText = "";
         }
