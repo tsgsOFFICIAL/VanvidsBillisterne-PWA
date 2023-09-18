@@ -17,9 +17,65 @@
         navigator.serviceWorker.register('sw.js', { scope: './' })
       }
     </script>
+    <style>
+        body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #263238;
+}
+
+.button-container {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.button-container button {
+  padding: 12px 40px;
+  background-color: #ffffff;
+  border: 0;
+  box-shadow: none;
+  margin: 0 20px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.button-container button:first-child {
+  background-color: #2646fe;
+  color: #ffffff;
+}
+.button-container button:first-child:hover {
+  background-color: #304ffe;
+}
+.button-container button:last-child {
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  background-color: transparent;
+}
+
+.error {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+    </style>
   </head>
   <body>
-    <h1>Do you have any idea how fast you are going?!</h1>
+    <main x-data='timer()' x-init='init()'>
+        <div>
+          <canvas id="canvas" width="300" height="300"></canvas>
+        </div>
+        <div class="button-container">
+          <button x-text='interval ? "Pause" : "Start"' @click='interval ? pause() : start()'>Start</button>
+        <button @click='stop()'>Reset</button>
+        </div>
+        <p class="error" x-show="!!error" x-html="error"></p>
+      </main>
+    <!-- <h1>Do you have any idea how fast you are going?!</h1>
 
     <button id="getSpeedBtn">Get My Speed!</button>
     <span>
@@ -27,37 +83,129 @@
         <h2 id="raw"></h2>
         <h2>Speed: </h2>
         <h2 id="speed"></h2>
-    </span>
+    </span> -->
 
     <script>
-        var rawSpeedo = document.querySelector("#raw");
-        var speedo = document.querySelector("#speed");
-        var get_speedo_btn = document.querySelector("#getSpeedBtn");
+        const canvasEl = document.getElementById("canvas");
+const canvasCtx = canvasEl.getContext('2d');
 
-        var watchId;
+const zeroPad = (num, places) => String(num).padStart(places, '0');
 
-        if ('geolocation' in navigator) {
-            get_speedo_btn.addEventListener('click', () => {
-                navigator.geolocation.getCurrentPosition((location) => {
-                    appendSpeed(location);
-                });
+function formatTime({ minutes, seconds }) {
+  return `${zeroPad(minutes, 2)} : ${zeroPad(seconds, 2)}`;
+}
 
-                watchId = navigator.geolocation.watchPosition(appendSpeed);
-            });
-        } else {
-            speedo.innerText = 'Geolocation API is not supported.';
+function calculateTime({ minutes, seconds }) {
+  if (minutes === 0 && seconds === 0) {
+    return {
+      minutes: 0,
+      seconds: 0 };
+
+  } else if (seconds === 0) {
+    return {
+      minutes: minutes - 1,
+      seconds: 59 };
+
+  } else {
+    return {
+      minutes: minutes,
+      seconds: seconds - 1 };
+
+  }
+}
+
+function writeToCanvas(text) {
+  canvasCtx.font = '52px serif';
+  canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+  canvasCtx.textAlign = 'center';
+  canvasCtx.fillStyle = "#59FFA0";
+  canvasCtx.fillText(text, canvas.width / 2, canvas.height / 2);
+}
+
+async function createVideo() {
+  const video = document.createElement('video');
+  video.muted = true;
+  video.srcObject = canvas.captureStream();
+  video.play();
+  video.addEventListener('loadedmetadata', () => {
+    video.requestPictureInPicture();
+  });
+}
+
+function timer() {
+  return {
+    interval: null,
+    error: null,
+    time: {
+      minutes: 25,
+      seconds: 0 },
+
+    init() {
+      const text = formatTime(this.time);
+      return () => {
+        writeToCanvas(text);
+        try {
+          createVideo();
+        } catch (err) {
+          this.err = err.message;
         }
-
-        function appendSpeed(location) {
-            rawSpeedo.innerText = '';
-
-            for (const property in location.coords) {
-                rawSpeedo.innerText = `${property}: ${location.coords[property]}, type: ${typeof location.coords[property]}`;
-            }
-
-            var newSpeed = `${location.coords.speed == undefined ? '00' : Number((location.coords.speed * 3.6)).toFixed(2)} km/h`;
-            speedo.innerText = newSpeed;
+      };
+    },
+    start() {
+      this.interval = setInterval(() => {
+        const time = calculateTime(this.time);
+        this.time = time;
+        if (time.minutes === 0 && time.seconds === 0) {
+          this.stop();
         }
+        const text = formatTime(time);
+        writeToCanvas(text);
+      }, 1000);
+    },
+    stop() {
+      clearInterval(this.interval);
+      this.interval = null;
+      this.time = {
+        minutes: 25,
+        seconds: 0 };
+
+      const text = formatTime(this.time);
+      writeToCanvas(text);
+    },
+    pause() {
+      clearInterval(this.interval);
+      this.interval = null;
+    } };
+
+}
+        // var rawSpeedo = document.querySelector("#raw");
+        // var speedo = document.querySelector("#speed");
+        // var get_speedo_btn = document.querySelector("#getSpeedBtn");
+
+        // var watchId;
+
+        // if ('geolocation' in navigator) {
+        //     get_speedo_btn.addEventListener('click', () => {
+        //         navigator.geolocation.getCurrentPosition((location) => {
+        //             appendSpeed(location);
+        //         });
+
+        //         watchId = navigator.geolocation.watchPosition(appendSpeed);
+        //     });
+        // } else {
+        //     speedo.innerText = 'Geolocation API is not supported.';
+        // }
+
+        // function appendSpeed(location) {
+        //     rawSpeedo.innerText = '';
+
+        //     for (const property in location.coords) {
+        //         rawSpeedo.innerText = `${property}: ${location.coords[property]}, type: ${typeof location.coords[property]}`;
+        //     }
+
+        //     var newSpeed = `${location.coords.speed == undefined ? '00' : Number((location.coords.speed * 3.6)).toFixed(2)} km/h`;
+        //     speedo.innerText = newSpeed;
+        // }
     </script>
   </body>
 </html>
