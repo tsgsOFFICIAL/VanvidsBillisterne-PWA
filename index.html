@@ -153,6 +153,8 @@
                     timeout: 15000,
                     maximumAge: 0
                 });
+
+                fetchLocalNotificationPermission();
             } else {
                 speedo.innerText = 'Geolocation API is not supported.';
             }
@@ -166,7 +168,7 @@
             
         }
 
-        async function fetchLocalNotificationPermission() {
+        function fetchLocalNotificationPermission() {
             if (!('Notification' in window)) {
                 alert('Notification API not supported!');
                 return;
