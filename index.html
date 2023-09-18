@@ -123,6 +123,32 @@
         var error = document.querySelector("#error");
         var geoWatch;
         
+        window.addEventListener("load", () => {
+            if ('geolocation' in navigator && 'watchPosition' in navigator.geolocation) {
+                geoWatch = navigator.geolocation.watchPosition(appendSpeed, positionError, {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                });
+
+                fetchPermissionsRequired();
+                setTimeout(() => {
+                    persistentNotification();
+                }, 15 * 1000);
+            } else {
+                speedo.innerText = 'Geolocation API is not supported.';
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", event => {
+            // we can move only if we are not in a browser's tab
+            isBrowser = matchMedia("(display-mode: browser)").matches;
+            if (!isBrowser) {
+                window.moveTo(16, 16);
+                window.resizeTo(800, 600);
+            }
+        });
+
         function appendSpeed(position) {
             var newSpeed = `${position.coords.speed == undefined ? '0' : (position.coords.speed * 3.6).toFixed(0)} km/h`;
             speedo.innerText = newSpeed;
@@ -145,23 +171,6 @@
                     break;
             }
         }
-
-        window.addEventListener("load", () => {
-            if ('geolocation' in navigator && 'watchPosition' in navigator.geolocation) {
-                geoWatch = navigator.geolocation.watchPosition(appendSpeed, positionError, {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0
-                });
-
-                fetchPermissionsRequired();
-                setTimeout(() => {
-                    persistentNotification();
-                }, 15 * 1000);
-            } else {
-                speedo.innerText = 'Geolocation API is not supported.';
-            }
-        });
 
         function persistentNotification() {
             if (!('Notification' in window) || !('ServiceWorkerRegistration' in window)) {
