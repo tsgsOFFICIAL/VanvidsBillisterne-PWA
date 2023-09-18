@@ -7,9 +7,6 @@
     "orientation": "portrait",
     "scope": "/VanvidsBillisterne-PWA",
     "start_url": "https://tsgsofficial.github.io/VanvidsBillisterne-PWA/",
-    "request_on_install": [
-        "runonstartup"
-    ],
     "icons": [
         {
             "src": "images/icons/icon-72x72.png",
