@@ -173,13 +173,12 @@
                 navigator.serviceWorker.getRegistration().then((reg) => {
                     if(Notification.permission === 'granted') {
                         const title = 'VanvidsBillisterne';
-                        const payload = {
-                            "body": "Test",
-                            "icon": "images/icons/icon-192x192.png",
-                            "badge": "images/icons/icon-96x96.png"
-                        };
 
-                        reg.showNotification(title, payload)
+                        reg.showNotification(title, {
+                            body: "Test",
+                            icon: "images/icons/icon-192x192.png",
+                            badge: "images/icons/icon-96x96.png"
+                        })
                     }
                 }).catch((err) => {
                     alert('Service Worker registration error: ' + err)
