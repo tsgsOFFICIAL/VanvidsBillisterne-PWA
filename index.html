@@ -172,7 +172,6 @@
             try {
                 navigator.serviceWorker.getRegistration().then((reg) => {
                     if(Notification.permission === 'granted') {
-                        showNotification(notification.value);
                         const title = 'VanvidsBillisterne';
                         const payload = {
                             "body": "Test"
